@@ -10,3 +10,67 @@
 2017-09-29 20:42:11,115 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:32]
 2017-09-29 20:42:41,835 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:32]
 2017-09-29 20:43:05,301 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:32]
+2017-09-30 14:17:48,622 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:30]
+2017-09-30 14:18:05,688 ERROR: Exception on /login [GET] [in G:\laragon\bin\python\python-2.7.13\lib\site-packages\flask\app.py:1560]
+Traceback (most recent call last):
+  File "G:\laragon\bin\python\python-2.7.13\lib\site-packages\flask\app.py", line 1982, in wsgi_app
+    response = self.full_dispatch_request()
+  File "G:\laragon\bin\python\python-2.7.13\lib\site-packages\flask\app.py", line 1614, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "G:\laragon\bin\python\python-2.7.13\lib\site-packages\flask\app.py", line 1517, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "G:\laragon\bin\python\python-2.7.13\lib\site-packages\flask\app.py", line 1612, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "G:\laragon\bin\python\python-2.7.13\lib\site-packages\flask\app.py", line 1598, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "D:\10Python\flasky\app\views.py", line 47, in login
+    form=form)
+  File "G:\laragon\bin\python\python-2.7.13\lib\site-packages\flask\templating.py", line 134, in render_template
+    context, ctx.app)
+  File "G:\laragon\bin\python\python-2.7.13\lib\site-packages\flask\templating.py", line 116, in _render
+    rv = template.render(context)
+  File "G:\laragon\bin\python\python-2.7.13\lib\site-packages\jinja2\environment.py", line 969, in render
+    return self.environment.handle_exception(exc_info, True)
+  File "G:\laragon\bin\python\python-2.7.13\lib\site-packages\jinja2\environment.py", line 742, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "D:\10Python\flasky\app\templates\login.html", line 2, in top-level template code
+    {% extends "base.html" %}
+  File "D:\10Python\flasky\app\templates\base.html", line 29, in top-level template code
+    {% block content %}{% endblock %}
+  File "D:\10Python\flasky\app\templates\login.html", line 23, in block "content"
+    {{ form.openid(size=80) }}
+UndefinedError: 'app.forms.LoginForm object' has no attribute 'openid'
+2017-09-30 14:19:31,369 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:30]
+2017-09-30 14:20:37,346 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:30]
+2017-09-30 14:20:38,109 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:30]
+2017-09-30 14:21:10,243 INFO: username jaweyhuang [in D:\10Python\flasky\app\views.py:41]
+2017-09-30 14:21:10,249 INFO: password 123456 [in D:\10Python\flasky\app\views.py:42]
+2017-09-30 14:31:15,496 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:30]
+2017-09-30 14:31:53,503 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:31]
+2017-09-30 14:33:42,112 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:33]
+2017-09-30 15:00:19,259 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:35]
+2017-09-30 15:01:08,308 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:35]
+2017-09-30 15:01:38,954 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:35]
+2017-09-30 15:02:22,918 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:35]
+2017-09-30 15:07:39,539 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:35]
+2017-09-30 15:11:33,868 INFO: blog startup [in app\__init__.py:35]
+2017-09-30 15:19:41,246 INFO: blog startup [in app\__init__.py:36]
+2017-09-30 15:21:33,088 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:21:33,671 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:22:38,500 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:22:40,615 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:23:44,559 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:24:40,361 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:24:48,914 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:24:51,319 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:25:01,496 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:25:34,154 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:26:50,644 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:27:22,348 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:27:24,654 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:27:26,907 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:29:04,805 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:29:07,233 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:37:05,869 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:37:24,302 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]
+2017-09-30 15:42:59,315 INFO: blog startup [in D:\10Python\flasky\app\__init__.py:36]

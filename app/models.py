@@ -6,15 +6,22 @@
 # @Version : $Id$
 
 from app import db
+from app import bcrypt
+
 from hashlib import md5
+
+_table_prefix = 'v1_'
 
 followers = db.Table('followers',
     db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
 
-
 class Post(db.Model):
+
+    # Set the name for table
+    __tablename__ = 'post'
+
     id        = db.Column(db.Integer, primary_key = True)
     body      = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime)
@@ -23,19 +30,32 @@ class Post(db.Model):
     def __repr__(self):
         return '<Post %r>' % (self.body)
 
+
 class User(db.Model):
+    
+    # Set the name for table
+    __tablename__ = 'user'
+
     id        = db.Column(db.Integer, primary_key = True)
-    nickname  = db.Column(db.String(64), unique = True)
+    username  = db.Column(db.String(120), unique = True)
     email     = db.Column(db.String(120), unique = True)
+    password  = db.Column(db.String(120))
+    nickname  = db.Column(db.String(64))
     posts     = db.relationship('Post', backref = 'author', lazy = 'dynamic')
     about_me  = db.Column(db.String(512))
     last_seen = db.Column(db.DateTime)
-    followed = db.relationship('User', 
+    followed  = db.relationship('User', 
         secondary = followers, 
         primaryjoin = (followers.c.follower_id == id), 
         secondaryjoin = (followers.c.followed_id == id), 
         backref = db.backref('followers', lazy = 'dynamic'), 
         lazy = 'dynamic')
+
+    def __init__(self, id, username, password, email):
+        self.id = id
+        self.username = username
+        self.email    = email
+        self.password = self.set_password(password)
 
     # 只返回 True，除非表示用户的对象因为某些原因不允许被认证
     def is_authenticated(self):
@@ -55,6 +75,22 @@ class User(db.Model):
             return unicode(self.id)  # python 2
         except NameError:
             return str(self.id)  # python 3
+
+    def set_password(self, password):
+        """Convert the password to cryptograph via flask-bcrypt"""
+        return bcrypt.generate_password_hash(password)
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+
+    def is_authenticated(self):
+        """Check the user whether logged in."""
+
+        # Check the User's instance whether Class AnonymousUserMixin's instance.
+        if isinstance(self, AnonymousUserMixin):
+            return False
+        else:
+            return True
 
     def avatar(self, size):
         return 'http://www.gravatar.com/avatar/' + md5(self.email).hexdigest() + '?d=mm&s=' + str(size)

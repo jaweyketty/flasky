@@ -6,13 +6,37 @@
 # @Version : $Id$
 
 from flask_wtf import FlaskForm as Form
-from wtforms import StringField, BooleanField, TextAreaField
+from wtforms import StringField, BooleanField, TextAreaField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length
 from app.models import User
 
 class LoginForm(Form):
-    openid = StringField('openid', validators=[DataRequired()])
-    remember_me = BooleanField('remember_me', default=False)
+    username    = StringField(u'用户名', validators=[DataRequired()])
+    password    = PasswordField(u'密码', validators=[DataRequired(), Length(6, 18, message=u'密码长度在6到18位')])
+    submit      = SubmitField(u'登录')
+    remember    = BooleanField(u'记住我', default=False)
+
+    def validate(self):
+        """Validator for check the account information."""
+        check_validata = super(LoginForm, self).validate()
+
+        # If validator no pass
+        if not check_validata:
+            return False
+
+        # Check the user whether exist.
+        user = User.query.filter_by(username=self.username.data).first()
+        if not user:
+            self.username.errors.append(u'无效的用户名或密码错误.')
+            return False
+
+        # Check the password whether right.
+        if not user.check_password(self.password.data):
+            self.password.errors.append(u'无效的用户名或密码错误.')
+            return False
+
+        return True
+
 
 class EditForm(Form):
     nickname = StringField('nickname', validators=[DataRequired()])

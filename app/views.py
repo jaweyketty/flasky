@@ -3,7 +3,7 @@
 
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
-from app import app, db, lm, oid
+from app import app, db, lm
 from .forms import LoginForm, EditForm
 from .models import User
 from datetime import datetime
@@ -30,18 +30,26 @@ def index():
         posts = posts)
 
 @app.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
+
 def login():
     if g.user is not None and g.user.is_authenticated :
         return redirect(url_for('index'))
+
     form = LoginForm()
     if form.validate_on_submit():
-        session['remember_me'] = form.remember_me.data
-        return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
+        # Using session to check the user's login status
+        # Add the user's name to cookie.
+        # session['username'] = form.username.data
+        user = User.query.filter_by(username=form.username.data).one()
+        # Using the Flask-Login to processing and check the login status for user
+        # Remember the user's login status. 
+        login_user(user, remember=form.remember.data)
+        flash("You have been logged in.", category="success")
+        return redirect(url_for("user", username=user.username))
+
     return render_template('login.html',
                            title='Sign In',
-                           form=form,
-                           providers=app.config['OPENID_PROVIDERS'])
+                           form=form)
 
 @app.before_request
 def before_request():
@@ -50,30 +58,6 @@ def before_request():
         g.user.last_seen = datetime.utcnow()
         db.session.add(g.user)
         db.session.commit()
-
-@oid.after_login
-def after_login(resp):
-    if resp.email is None or resp.email == "":
-        flash('Invalid login. Please try again.')
-        redirect(url_for('login'))
-    user = User.query.filter_by(email = resp.email).first()
-    if user is None:
-        nickname = resp.nickname
-        if nickname is None or nickname == "":
-            nickname = resp.email.split('@')[0]
-        nickname = User.make_unique_nickname(nickname)
-        user = User(nickname = nickname, email = resp.email)
-        db.session.add(user)
-        db.session.commit()
-        # make the user follow him/herself
-        db.session.add(user.follow(user))
-        db.session.commit()
-    remember_me = False
-    if 'remember_me' in session:
-        remember_me = session['remember_me']
-        session.pop('remember_me', None)
-    login_user(user, remember = remember_me)
-    return redirect(request.args.get('next') or url_for('index'))
 
 @lm.user_loader
 def load_user(id):
@@ -84,12 +68,12 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route('/user/<nickname>')
+@app.route('/user/<username>')
 @login_required
-def user(nickname):
-    user = User.query.filter_by(nickname = nickname).first()
+def user(username):
+    user = User.query.filter_by(username = username).first()
     if user == None:
-        flash('User ' + nickname + ' not found.')
+        flash('User ' + username + ' not found.')
         return redirect(url_for('index'))
     posts = [
         { 'author': user, 'body': 'Test post #1' },
@@ -109,7 +93,7 @@ def useredit():
         db.session.add(g.user)
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('edit'))
+        return redirect(url_for('useredit'))
     else:
         form.nickname.data = g.user.nickname
         form.about_me.data = g.user.about_me

@@ -5,20 +5,24 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_login import LoginManager
-from flask_openid import OpenID
+from flask_bcrypt import Bcrypt
 from config import basedir
 from config import logfile
+from datetime import date,timedelta
 
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
 
 lm = LoginManager()
-lm.init_app(app)
+lm.session_protection = "strong"
 # Flask-Login 那个视图允许用户登录设置
-lm.login_view = 'login'
-
-oid = OpenID(app, os.path.join(basedir, 'tmp'))
+lm.login_view = "login"
+lm.login_message = u"请登录！"
+lm.login_message_category = "info"
+lm.remember_cookie_duration = timedelta(days=1)
+lm.init_app(app)
 
 from app import views, models
 

@@ -8,7 +8,7 @@
 import os
 
 CSRF_ENABLED = True
-SECRET_KEY = '123456'
+SECRET_KEY = '123456s3cr3t'
 
 OPENID_PROVIDERS = [
     { 'name': 'Google', 'url': 'https://www.google.com/accounts/o8/id' },
@@ -25,6 +25,6 @@ logfile = os.path.join(basedir, 'logs/flask.log')
 #mysql_db = create_engine('mysql://用户名:密码@ip:port/dbname')
 #创建数据库连接，使用mysql-connector-python连接方式
 #mysql_db = create_engine("mysql+mysqlconnector://用户名:密码@ip:port/dbname")
-SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://hw:123456@127.0.0.1:3306/db_flask'
+SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://hw:123456@127.0.0.1:3306/db_flask?charset=utf8'
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
