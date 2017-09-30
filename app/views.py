@@ -4,29 +4,29 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
-from .forms import LoginForm, EditForm
-from .models import User
+from .forms import LoginForm, EditForm, PostForm, SearchForm
+from .models import User, Post
 from datetime import datetime
+from config import POSTS_PER_PAGE, MAX_SEARCH_RESULTS
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
+@app.route('/index/<int:page>', methods = ['GET', 'POST'])
 @login_required
-def index():
-    user = g.user
-    posts = []
-    tmp = {}
-    tmp['author'] = {}
-    tmp['author']['nickname'] = "John"
-    tmp['body'] = "Beautiful day in portland!"
-    posts.append(tmp)
-    tmp = {}
-    tmp['author'] = {}
-    tmp['author']['nickname'] = "Susan"
-    tmp['body'] = "The Avengers movie was so cool!"
-    posts.append(tmp)
+def index(page = 1):
+    form = PostForm()
+    if form.validate_on_submit():
+        app.logger.info(form.post.data)
+        post = Post(body=form.post.data, timestamp=datetime.utcnow(), author=g.user)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your post is now live!')
+        return redirect(url_for('index'))
+
+    posts = g.user.followed_posts().paginate(page, POSTS_PER_PAGE, False)
     return render_template("index.html",
         title = "Home", 
-        user = user,
+        form = form,
         posts = posts)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -58,6 +58,7 @@ def before_request():
         g.user.last_seen = datetime.utcnow()
         db.session.add(g.user)
         db.session.commit()
+        g.search_form = SearchForm()
 
 @lm.user_loader
 def load_user(id):
@@ -93,49 +94,65 @@ def useredit():
         db.session.add(g.user)
         db.session.commit()
         flash('Your changes have been saved.')
-        return redirect(url_for('useredit'))
+        # return redirect(url_for('useredit'))
+        return redirect(url_for("user", username=g.user.username))
     else:
         form.nickname.data = g.user.nickname
         form.about_me.data = g.user.about_me
     return render_template('edit.html', form=form)
 
-@app.route('/follow/<nickname>')
+@app.route('/follow/<username>')
 @login_required
-def follow(nickname):
-    user = User.query.filter_by(nickname=nickname).first()
+def follow(username):
+    user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('User %s not found.' % nickname)
+        flash('User %s not found.' % username)
         return redirect(url_for('index'))
     if user == g.user:
         flash('You can\'t follow yourself!')
-        return redirect(url_for('user', nickname=nickname))
+        return redirect(url_for('user', username=username))
     u = g.user.follow(user)
     if u is None:
-        flash('Cannot follow ' + nickname + '.')
-        return redirect(url_for('user', nickname=nickname))
+        flash('Cannot follow ' + username + '.')
+        return redirect(url_for('user', username=username))
     db.session.add(u)
     db.session.commit()
-    flash('You are now following ' + nickname + '!')
-    return redirect(url_for('user', nickname=nickname))
+    flash('You are now following ' + username + '!')
+    return redirect(url_for('user', username=username))
 
-@app.route('/unfollow/<nickname>')
+@app.route('/unfollow/<username>')
 @login_required
-def unfollow(nickname):
-    user = User.query.filter_by(nickname=nickname).first()
+def unfollow(username):
+    user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('User %s not found.' % nickname)
+        flash('User %s not found.' % username)
         return redirect(url_for('index'))
     if user == g.user:
         flash('You can\'t unfollow yourself!')
-        return redirect(url_for('user', nickname=nickname))
+        return redirect(url_for('user', username=username))
     u = g.user.unfollow(user)
     if u is None:
-        flash('Cannot unfollow ' + nickname + '.')
-        return redirect(url_for('user', nickname=nickname))
+        flash('Cannot unfollow ' + username + '.')
+        return redirect(url_for('user', username=username))
     db.session.add(u)
     db.session.commit()
-    flash('You have stopped following ' + nickname + '.')
-    return redirect(url_for('user', nickname=nickname))
+    flash('You have stopped following ' + username + '.')
+    return redirect(url_for('user', username=username))
+
+@app.route('/search', methods = ['POST'])
+@login_required
+def search():
+    if not g.search_form.validate_on_submit():
+        return redirect(url_for('index'))
+    return redirect(url_for('search_results', query = g.search_form.search.data))
+
+@app.route('/search_results/<query>')
+@login_required
+def search_results(query):
+    results = Post.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
+    return render_template('search_results.html',
+        query = query,
+        results = results)
 
 @app.errorhandler(404)
 def internal_error(error):

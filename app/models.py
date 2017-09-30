@@ -5,12 +5,16 @@
 # @Link    : ${link}
 # @Version : $Id$
 
+from app import app
 from app import db
 from app import bcrypt
 
 from hashlib import md5
+from config import WHOOSH_ENABLE
 
-_table_prefix = 'v1_'
+if WHOOSH_ENABLE:
+    import flask_whooshalchemy as whooshalchemy
+
 
 followers = db.Table('followers',
     db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
@@ -20,9 +24,11 @@ followers = db.Table('followers',
 class Post(db.Model):
 
     # Set the name for table
-    __tablename__ = 'post'
+    __tablename__  = 'post'
+    __searchable__ = []
 
     id        = db.Column(db.Integer, primary_key = True)
+    title     = db.Column(db.String(50))
     body      = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime)
     user_id   = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -125,3 +131,6 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % (self.nickname)
+
+if WHOOSH_ENABLE:
+    whooshalchemy.whoosh_index(app, Post)

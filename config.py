@@ -28,3 +28,10 @@ logfile = os.path.join(basedir, 'logs/flask.log')
 SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://hw:123456@127.0.0.1:3306/db_flask?charset=utf8'
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+
+# pagination
+POSTS_PER_PAGE = 3
+
+WHOOSH_BASE = os.path.join(basedir, 'tmp/whoosh_index')
+WHOOSH_ENABLE = True
+MAX_SEARCH_RESULTS = 50

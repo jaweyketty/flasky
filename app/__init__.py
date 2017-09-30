@@ -1,18 +1,32 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 import os
+from flask import Flask
+
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
+from sqlalchemy import MetaData
+
 from config import basedir
 from config import logfile
 from datetime import date,timedelta
 
 app = Flask(__name__)
 app.config.from_object('config')
-db = SQLAlchemy(app)
+
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
+metadata = MetaData(naming_convention=convention)
+db = SQLAlchemy(app, use_native_unicode="utf8", metadata=metadata)
+
+
 bcrypt = Bcrypt(app)
 
 lm = LoginManager()
